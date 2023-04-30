@@ -3,8 +3,11 @@
 This is the GitHub repository for our paper: Identifying Autism Spectrum Disorder Based on Individual-Aware Down-Sampling and Multi-Modal Learning
 
 ## Requirements
+Python 3.10.7
 
-torch == 1.8.1+cu102
+follow this tuto to install pytorch cuda : https://youtu.be/Kp6c5v9iL84
+torch == 2.0.0+cu118
+pip install torch torchvision torchaudio --extra-index-url https://download.pytorch.org/whl/cu118
 
 torch-cluster == 1.5.9
 
@@ -14,7 +17,7 @@ torch-scatter == 2.0.7
 
 torch-sparse == 0.6.10
 
-sklearn
+scikit-learn
 
 nilearn
 
@@ -23,9 +26,12 @@ nilearn
 Install torch-geometric:
 
 ```
-pip install torch-scatter -f https://data.pyg.org/whl/torch-1.8.1+cu102.html
-pip install torch-sparse -f https://data.pyg.org/whl/torch-1.8.1+cu102.html
-pip install torch-cluster -f https://data.pyg.org/whl/torch-1.8.1+cu102.html
+pip install torch-scatter -f https://data.pyg.org/whl/torch-2.0.0+cu118.html
+
+pip install torch-sparse -f https://data.pyg.org/whl/torch-2.0.0+cu118.html
+
+pip install torch-cluster -f https://data.pyg.org/whl/torch-2.0.0+cu118.html
+
 pip install torch-geometric
 ```
 
