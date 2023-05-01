@@ -68,7 +68,7 @@ python visualize.py --roc
 
 will plot the ROC curve and confusion matrix for the framework using the classification results saved to /results/
 
-![image-roc](roc.png)
+![image-roc](our_roc.png)
 
 ## Visualization
 
