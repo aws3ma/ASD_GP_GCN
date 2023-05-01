@@ -6,7 +6,9 @@ This is the GitHub repository for our paper: Identifying Autism Spectrum Disorde
 Python 3.10.7
 
 follow this tuto to install pytorch cuda : https://youtu.be/Kp6c5v9iL84
+
 torch == 2.0.0+cu118
+
 pip install torch torchvision torchaudio --extra-index-url https://download.pytorch.org/whl/cu118
 
 torch-cluster == 1.5.9
