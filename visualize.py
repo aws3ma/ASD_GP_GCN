@@ -3,7 +3,8 @@ import torch
 import argparse
 import matplotlib.pyplot as plt
 from matplotlib.pyplot import cm
-from torch_geometric.data import Data, DataLoader
+from torch_geometric.data import Data
+from torch_geometric.loader import DataLoader
 from models import GCN
 import numpy as np
 from numpy import interp
@@ -16,14 +17,22 @@ from sklearn.manifold import TSNE
 
 parser = argparse.ArgumentParser()
 
-parser.add_argument('--roc', action='store_true', default=False, help='Visualize ROC curve and mean confusion matrix')
-parser.add_argument('--embedding', action='store_true', default=False, help='Visualize the learned node embeddings')
-parser.add_argument('--result_root', type=str, default='./results', help='Root for the results')
-parser.add_argument('--model_root', type=str, default='./checkpoints', help='Root for the stored models')
-parser.add_argument('--data_root', type=str, default='./data', help='Root for the data')
-parser.add_argument('--seed', type=int, default=13, help='Random seed. To specify the test set for evaluation')
-parser.add_argument('--pooling_ratio', type=float, default=0.05, help='pooling ratio')
-parser.add_argument('--group', type=str, default='gender', help='Phenotypic attribute to group subjects on')
+parser.add_argument('--roc', action='store_true', default=False,
+                    help='Visualize ROC curve and mean confusion matrix')
+parser.add_argument('--embedding', action='store_true',
+                    default=False, help='Visualize the learned node embeddings')
+parser.add_argument('--result_root', type=str,
+                    default='./results', help='Root for the results')
+parser.add_argument('--model_root', type=str,
+                    default='./checkpoints', help='Root for the stored models')
+parser.add_argument('--data_root', type=str,
+                    default='./data', help='Root for the data')
+parser.add_argument('--seed', type=int, default=13,
+                    help='Random seed. To specify the test set for evaluation')
+parser.add_argument('--pooling_ratio', type=float,
+                    default=0.05, help='pooling ratio')
+parser.add_argument('--group', type=str, default='gender',
+                    help='Phenotypic attribute to group subjects on')
 
 args = parser.parse_args()
 
@@ -89,7 +98,8 @@ def draw_cv_roc_curve(cv, out, y, thre=0, title=''):
     ax2 = plt.subplot(122)
     sum_of_rows = cn_matrix.sum(axis=1)
     normalized = cn_matrix / sum_of_rows[:, np.newaxis]
-    disp = ConfusionMatrixDisplay(normalized, display_labels=['Control', 'ASD'])
+    disp = ConfusionMatrixDisplay(
+        normalized, display_labels=['Control', 'ASD'])
     disp.plot(ax=ax2, cmap=plt.cm.Blues)
     ax2.set_title('Confusion Matrix')
 
@@ -121,7 +131,8 @@ def view2D(out, color, axis, size=70, maximum=11, legend_title='', title=''):
         selected = color == item
         if i > maximum-1:
             break
-        axis.scatter(z[selected, 0], z[selected, 1], s=size, color=cm.Set3(i), label=item)
+        axis.scatter(z[selected, 0], z[selected, 1],
+                     s=size, color=cm.Set3(i), label=item)
 
     axis.set_xlabel('Dimension 1')
     axis.set_ylabel('Dimension 2')
@@ -171,14 +182,16 @@ if __name__ == '__main__':
                      int(f.split('_')[-2]) == args.seed]
         assert len(file_name), \
             'No result match the requirements: ' \
-            'pooling ratio {:.3f}, random seed: {:d}'.format(args.pooling_ratio, args.seed)
+            'pooling ratio {:.3f}, random seed: {:d}'.format(
+                args.pooling_ratio, args.seed)
         file_name = file_name[0]
         # load the predictions
         pred = pd.read_csv(os.path.join(result_path, file_name))
         # initialize k-fold
         kf = KFold(n_splits=10, random_state=args.seed, shuffle=True)
         # load ground truth
-        labels = pd.read_csv(os.path.join(args.data_root, 'phenotypic', 'log.csv'))['label']
+        labels = pd.read_csv(os.path.join(
+            args.data_root, 'phenotypic', 'log.csv'))['label']
         # plot
         draw_cv_roc_curve(kf, pred, labels, thre=threshold,
                           title='pooling ratio = {:.3f}, random seed = {:d}'.
@@ -194,7 +207,8 @@ if __name__ == '__main__':
             'No trained GCN model found.'
 
         # load phenotypic information for grouping
-        logs = pd.read_csv(os.path.join(args.data_root, 'phenotypic', 'log.csv'))
+        logs = pd.read_csv(os.path.join(
+            args.data_root, 'phenotypic', 'log.csv'))
 
         # assign each node to groups
         if args.group == 'gender':
@@ -214,7 +228,7 @@ if __name__ == '__main__':
                     sample_ages.append('18 <= age <= 58')
             tags = np.array(sample_ages)
         else:
-            raise AttributeError('No such group available: %s'%args.group)
+            raise AttributeError('No such group available: %s' % args.group)
 
         # find the model with highest test acc from 10 folds
         test_acc = [float(f.split('_')[3]) for f in models]
@@ -232,23 +246,26 @@ if __name__ == '__main__':
         features = pd.read_csv(os.path.join(args.data_root, 'Further_Learned_Features',
                                             'fold_%d' % fold_num, 'features.txt'), header=None, sep='\t')
         # load population graph
-        edge_idx = pd.read_csv(os.path.join(args.data_root, 'population graph', 'ABIDE.adj'), header=None).values
+        edge_idx = pd.read_csv(os.path.join(
+            args.data_root, 'population graph', 'ABIDE.adj'), header=None).values
         edge_attr = pd.read_csv(os.path.join(args.data_root,
                                              'population graph', 'ABIDE.attr'), header=None).values.reshape(-1)
 
         # convert features to embeddings using pre-trained gcn model
-        node_embedding = feature2embedding(gcn_model, features, edge_idx, edge_attr, model_args)
+        node_embedding = feature2embedding(
+            gcn_model, features, edge_idx, edge_attr, model_args)
 
         plt.figure(figsize=(15, 6))
         ax1 = plt.subplot(121)
         ax2 = plt.subplot(122)
 
         # plot 2D view of features
-        view2D(features, tags, axis=ax1, legend_title=args.group, title='Further Learned Features')
+        view2D(features, tags, axis=ax1, legend_title=args.group,
+               title='Further Learned Features')
 
         # plot 2D view of embeddings
-        view2D(node_embedding, tags, axis=ax2, legend_title=args.group, title='Node Embeddings')
+        view2D(node_embedding, tags, axis=ax2,
+               legend_title=args.group, title='Node Embeddings')
 
         plt.suptitle('Features VS Node Embeddings on %s' % args.group)
         plt.show()
-

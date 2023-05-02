@@ -1,2 +1,4 @@
 data
 checkpoints
+temp
+__pycache__

@@ -10,7 +10,8 @@ from training import train_mlp, test_mlp, train_gcn, test_gcn
 from models import GPModel, MultilayerPerceptron, GCN
 from sklearn.model_selection import KFold
 from torch.utils.data import Subset
-from torch_geometric.data import DataLoader, Data
+from torch_geometric.data import Data
+from torch_geometric.loader import DataLoader
 
 
 def kfold_mlp(data, args):

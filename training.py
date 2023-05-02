@@ -8,7 +8,7 @@ import pandas as pd
 import numpy as np
 import shutil
 from torch_geometric.datasets import TUDataset
-from torch_geometric.data import DataLoader
+from torch_geometric.loader import DataLoader
 from models import GPModel, MultilayerPerceptron
 
 

@@ -83,5 +83,5 @@ if __name__ == '__main__':
     brain_graph(logs, atlas, os.path.join(args.root, 'ABIDE', 'raw'), path)
 
     # delete all the downloaded data
-    print('Deleting the raw ABIDE I data...')
-    delete_path('./temp')
+    # print('Deleting the raw ABIDE I data...')
+    # delete_path('./temp')
