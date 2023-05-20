@@ -46,7 +46,8 @@ def kfold_mlp(data, args):
     # repeat args.times times
     # the larger this parameter, the more stable the performance
     for repeat in range(args.times):
-        print('%d times CV out of %d on training MLP...' % (repeat + 1, args.times))
+        print('%d times CV out of %d on training MLP...' %
+              (repeat + 1, args.times))
         for i, (train_idx, test_idx) in enumerate(kf.split(indices)):
             print('Training MLP on the %d fold...' % (i + 1))
             for count, (train_id, val_id) in enumerate(val_kf.split(train_idx)):
@@ -57,7 +58,8 @@ def kfold_mlp(data, args):
                 train_idx1 = train_idx[train_id]
 
                 # create fold dir
-                fold_dir = os.path.join(args.check_dir, 'MLP', 'fold_%d' % (i + 1))
+                fold_dir = os.path.join(
+                    args.check_dir, 'MLP', 'fold_%d' % (i + 1))
                 if not os.path.exists(fold_dir):
                     os.makedirs(fold_dir)
 
@@ -74,7 +76,8 @@ def kfold_mlp(data, args):
 
                 # set model
                 model = MultilayerPerceptron(args).to(args.device)
-                opt = torch.optim.Adam(model.parameters(), lr=args.lr, weight_decay=args.weight_decay)
+                opt = torch.optim.Adam(
+                    model.parameters(), lr=args.lr, weight_decay=args.weight_decay)
 
                 # Set training and validation set
                 # Do not use the test set
@@ -87,9 +90,12 @@ def kfold_mlp(data, args):
                     'Something goes wrong with 10-fold cross-validation'
 
                 # Build the data loader
-                training_loader = DataLoader(train_set, batch_size=args.batch_size, shuffle=True)
-                validation_loader = DataLoader(val_set, batch_size=args.batch_size, shuffle=False)
-                test_loader = DataLoader(test_set, batch_size=args.batch_size, shuffle=False)
+                training_loader = DataLoader(
+                    train_set, batch_size=args.batch_size, shuffle=True)
+                validation_loader = DataLoader(
+                    val_set, batch_size=args.batch_size, shuffle=False)
+                test_loader = DataLoader(
+                    test_set, batch_size=args.batch_size, shuffle=False)
 
                 # Model training
                 best_model, best_val_acc, best_val_loss = train_mlp(model=model, train_loader=training_loader,
@@ -97,13 +103,14 @@ def kfold_mlp(data, args):
                                                                     save_path=fold_dir, args=args)
 
                 # Load the best model for validation set
-                checkpoint = torch.load(os.path.join(fold_dir, '{}.pth'.format(best_model)))
+                checkpoint = torch.load(os.path.join(
+                    fold_dir, '{}.pth'.format(best_model)))
                 model.load_state_dict(checkpoint['net'])
 
                 # Save the best model
                 state = {'net': model.state_dict(), 'args': args}
                 torch.save(state, os.path.join(fold_dir, 'num_{:d}_valloss_{:.6f}_pool_{:.3f}_epoch_{:d}_.pth'
-                                               .format(count + 1, best_val_loss, args.pooling_ratio, best_model)))
+                                                .format(count + 1, best_val_loss, args.pooling_ratio, best_model)))
 
 
 def kfold_gcn(edge_index, edge_attr, num_samples, args):
@@ -137,7 +144,8 @@ def kfold_gcn(edge_index, edge_attr, num_samples, args):
 
     for i, (train_idx, test_idx) in enumerate(kf.split(indices)):
         # Ready to read further learned features extracted by MLP on different folds
-        fold_path = os.path.join(args.data_dir, 'Further_Learned_Features', 'fold_%d' % (i + 1))
+        fold_path = os.path.join(
+            args.data_dir, 'Further_Learned_Features', 'fold_%d' % (i + 1))
         # working path of training gcn
         work_path = os.path.join(args.check_dir, 'GCN')
 
@@ -155,7 +163,8 @@ def kfold_gcn(edge_index, edge_attr, num_samples, args):
 
         print('Training GCN on the %d fold' % (i + 1))
         model = GCN(args).to(args.device)
-        optimizer = torch.optim.Adam(model.parameters(), lr=args.lr, weight_decay=args.weight_decay)
+        optimizer = torch.optim.Adam(
+            model.parameters(), lr=args.lr, weight_decay=args.weight_decay)
 
         # Load 'further learned features'
         feature_path = os.path.join(fold_path, 'features.txt')
@@ -194,7 +203,8 @@ def kfold_gcn(edge_index, edge_attr, num_samples, args):
         # Model training
         best_model = train_gcn(loader, model, optimizer, work_path, args)
         # Restore best model for test set
-        checkpoint = torch.load(os.path.join(work_path, '{}.pth'.format(best_model)))
+        checkpoint = torch.load(os.path.join(
+            work_path, '{}.pth'.format(best_model)))
         model.load_state_dict(checkpoint['net'])
         test_acc, test_loss, test_out = test_gcn(loader, model, args)
 
@@ -203,12 +213,14 @@ def kfold_gcn(edge_index, edge_attr, num_samples, args):
         test_result_acc.append(test_acc)
         test_result_loss.append(test_loss)
         acc_val, loss_val, _ = test_gcn(loader, model, args, test=False)
-        print('GCN {:0>2d} fold test set results, loss = {:.6f}, accuracy = {:.6f}'.format(i + 1, test_loss, test_acc))
-        print('GCN {:0>2d} fold val set results, loss = {:.6f}, accuracy = {:.6f}'.format(i + 1, loss_val, acc_val))
+        print('GCN {:0>2d} fold test set results, loss = {:.6f}, accuracy = {:.6f}'.format(
+            i + 1, test_loss, test_acc))
+        print('GCN {:0>2d} fold val set results, loss = {:.6f}, accuracy = {:.6f}'.format(
+            i + 1, loss_val, acc_val))
 
         state = {'net': model.state_dict(), 'args': args}
         torch.save(state, os.path.join(work_path, 'fold_{:d}_test_{:.6f}_drop_{:.3f}_epoch_{:d}_.pth'
-                                       .format(i + 1, test_acc, args.dropout_ratio, best_model)))
+                                        .format(i + 1, test_acc, args.dropout_ratio, best_model)))
 
     # save the predictions to args.result_dir/Graph Convolutional Networks/GCN_pool_%.3f_seed_%d_.csv
     result_path = args.result_dir
@@ -216,8 +228,7 @@ def kfold_gcn(edge_index, edge_attr, num_samples, args):
         os.makedirs(result_path)
 
     result_df.to_csv(os.path.join(result_path,
-                                  'GCN_pool_%.3f_seed_%d_.csv' % (args.pooling_ratio, args.seed)),
-                     index=False, header=True)
+                                    'GCN_pool_%.3f_seed_%d_.csv' % (args.pooling_ratio, args.seed)),
+                    index=False, header=True)
 
     print('Mean Accuracy: %f' % (sum(test_result_acc)/len(test_result_acc)))
-

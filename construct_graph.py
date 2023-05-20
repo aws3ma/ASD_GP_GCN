@@ -93,7 +93,7 @@ def brain_graph(logs, atlas, path, data_folder):
         # the shortest one, 78.
         ho_rois = pd.read_csv(file_path, sep='\t').iloc[:78, :].T
         node_att = pd.concat([node_att, ho_rois])
-
+    # ho_rois length = 78 columns, 111*871 rows
     node_att.to_csv(os.path.join(path, 'ABIDE_node_attributes.txt'), index=False, header=False)
 
     print('The shape of node attributes is (%d, %d)' % node_att.shape)
@@ -136,18 +136,24 @@ def population_graph(args):
     ages = logs['AGE_AT_SCAN'].values
     # Normalization
     ages = (ages - min(ages)) / (max(ages) - min(ages))
-
+#     np.c_[np.array([1,2,3]), np.array([4,5,6])]
+#       array([[1, 4],
+#        [2, 5],
+#        [3, 6]])
     cluster_features = np.c_[text_feature, ages]
 
     adj = []
     att = []
+    # K(X, Y) = <X, Y> / (||X||*||Y||)
+    # correlation 
     sim_matrix = cosine_similarity(cluster_features)
     for i in range(871):
         for j in range(871):
+            # lkhidma 3al partie lfou9ania i> j w lezim correlation>0.5 bin les patients ex bin patient x0(i) w patien x1(j)
             if sim_matrix[i, j] > 0.5 and i > j:
                 adj.append([i, j])
                 att.append(sim_matrix[i, j])
-
+    print()
     adj = np.array(adj).T
     att = np.array([att]).T
 
